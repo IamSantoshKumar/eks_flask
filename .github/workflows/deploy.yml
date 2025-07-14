@@ -1,0 +1,43 @@
+# ------------------------------------------
+# 3. .github/workflows/deploy.yml - GitHub Actions CI/CD for app
+# ------------------------------------------
+name: Deploy to EKS
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region us-east-1 | \
+            docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REPOSITORY: flask-hello-world
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REPOSITORY .
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Kubernetes Deployment image
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name flask-eks-cluster
+          kubectl set image deployment/flask-deployment flask=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/flask-hello-world:latest
