@@ -1,5 +1,3 @@
-
-# ------------------------------------------
 # 4. .github/workflows/terraform.yml - GitHub Actions CI/CD for Terraform
 # ------------------------------------------
 name: Terraform EKS Infrastructure

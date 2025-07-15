@@ -1,11 +1,12 @@
 # ------------------------------------------
-# 3. .github/workflows/deploy.yml - GitHub Actions CI/CD for app
-# ------------------------------------------
+# 3. .github/workflows/deploy.yml - GitHub Actions CI/CD for app (runs after Terraform completes)
 name: Deploy to EKS
 
 on:
-  push:
-    branches: ["main"]
+  workflow_run:
+    workflows: ["Terraform EKS Infrastructure"]
+    types:
+      - completed
 
 jobs:
   deploy:
