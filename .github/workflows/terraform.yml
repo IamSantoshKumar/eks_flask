@@ -41,7 +41,8 @@ jobs:
 
       - name: Initialize terraform
         run: |
-          terraform init
+          terraform init -upgrade
+
 
       - name: Terraform Plan
         run: terraform plan
