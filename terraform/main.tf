@@ -71,11 +71,6 @@ output "repository_url" {
   value = aws_ecr_repository.flask_repo.repository_url
 }
 
-output "public_ip_addresses" {
-  description = "Public IPs of worker nodes"
-  value = module.eks.eks_managed_node_groups[*].public_ip
-}
-
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   cluster_name    = "flask-eks-cluster"
