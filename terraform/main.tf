@@ -71,21 +71,31 @@ output "repository_url" {
   value = aws_ecr_repository.flask_repo.repository_url
 }
 
+output "public_ip_addresses" {
+  description = "Public IPs of worker nodes"
+  value = module.eks.eks_managed_node_groups[*].public_ip
+}
+
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = "flask-eks-cluster"
-  cluster_version = "1.29"
-  subnet_ids = [
+  source                         = "terraform-aws-modules/eks/aws"
+  cluster_name                   = "flask-eks-cluster"
+  cluster_version                = "1.29"
+  subnet_ids                     = [
     aws_subnet.public_subnet_1.id,
     aws_subnet.public_subnet_2.id
   ]
-  vpc_id = aws_vpc.main.id
+  vpc_id                         = aws_vpc.main.id
   cluster_endpoint_public_access = true
   cluster_endpoint_private_access = true
+  create_kms_key                 = false
+  access_public_cidrs            = ["0.0.0.0/0"]
 
   eks_managed_node_group_defaults = {
     instance_types = ["t3.micro"]
   }
+
+  
+}
 
   eks_managed_node_groups = {
     default_node_group = {
@@ -95,7 +105,8 @@ module "eks" {
       name         = "ng-flask"
     }
   }
-}
+
+
 
 resource "aws_security_group_rule" "eks_api_ingress" {
   type              = "ingress"
@@ -104,5 +115,5 @@ resource "aws_security_group_rule" "eks_api_ingress" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.eks.cluster_security_group_id
-  description       = "Allow public access to EKS API from anywher"
+  description       = "Allow public access to EKS API from anywhere"
 }
