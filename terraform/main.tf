@@ -73,7 +73,7 @@ output "repository_url" {
 
 module "eks" {
   source                         = "terraform-aws-modules/eks/aws"
-  version                        = "20.8.4" # optional: lock module version
+  version                        = "19.21.0" # optional: lock module version
   cluster_name                   = "flask-eks-cluster"
   cluster_version                = "1.29"
   subnet_ids                     = [
@@ -84,6 +84,10 @@ module "eks" {
   cluster_endpoint_public_access = true
   cluster_endpoint_private_access = true
   create_kms_key                 = false
+
+
+
+
 
   eks_managed_node_groups = {
     ng-flask = {
