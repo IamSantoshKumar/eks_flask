@@ -3,7 +3,7 @@
 # ------------------------------------------
 
 provider "aws" {
-  region = "us-east-1"
+  region = "eu-north-1"
 }
 
 resource "aws_vpc" "main" {
@@ -36,7 +36,7 @@ resource "aws_route_table" "public" {
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
+  availability_zone       = "eu-north-1a"
   map_public_ip_on_launch = true
   tags = {
     Name = "flask-eks-public-subnet-1"
@@ -46,7 +46,7 @@ resource "aws_subnet" "public_subnet_1" {
 resource "aws_subnet" "public_subnet_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
+  availability_zone       = "eu-north-1b"
   map_public_ip_on_launch = true
   tags = {
     Name = "flask-eks-public-subnet-2"
@@ -80,6 +80,8 @@ module "eks" {
     aws_subnet.public_subnet_2.id
   ]
   vpc_id = aws_vpc.main.id
+  cluster_endpoint_public_access = true
+  cluster_endpoint_private_access = true
 
   eks_managed_node_group_defaults = {
     instance_types = ["t3.micro"]
