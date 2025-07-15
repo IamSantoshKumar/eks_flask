@@ -96,3 +96,13 @@ module "eks" {
     }
   }
 }
+
+resource "aws_security_group_rule" "eks_api_ingress" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = module.eks.cluster_security_group_id
+  description       = "Allow public access to EKS API from anywhere"
+}
