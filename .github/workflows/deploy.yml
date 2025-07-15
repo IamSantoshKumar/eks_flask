@@ -20,17 +20,17 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: eu-north-1
 
       - name: Login to Amazon ECR
         id: login-ecr
         run: |
-          aws ecr get-login-password --region us-east-1 | \
-            docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+          aws ecr get-login-password --region eu-north-1 | \
+            docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
 
       - name: Build, tag, and push image to ECR
         env:
-          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
           ECR_REPOSITORY: flask-hello-world
           IMAGE_TAG: latest
         run: |
@@ -40,5 +40,5 @@ jobs:
 
       - name: Update Kubernetes Deployment image
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name flask-eks-cluster
-          kubectl set image deployment/flask-deployment flask=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/flask-hello-world:latest
+          aws eks update-kubeconfig --region eu-north-1 --name flask-eks-cluster
+          kubectl set image deployment/flask-deployment flask=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com/flask-hello-world:latest
