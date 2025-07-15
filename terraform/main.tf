@@ -82,6 +82,7 @@ module "eks" {
   vpc_id = aws_vpc.main.id
   cluster_endpoint_public_access = true
   cluster_endpoint_private_access = true
+  create_kms_key                 = false
 
   eks_managed_node_group_defaults = {
     instance_types = ["t3.micro"]
