@@ -8,7 +8,6 @@ on:
     paths:
       - 'terraform/**'
     branches: ["main"]
-
 jobs:
   terraform:
     name: 'Terraform Apply'
@@ -33,16 +32,21 @@ jobs:
         with:
           terraform_version: 1.7.5
 
-      
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
       - name: Auto-import existing resources
         run: |
           terraform state list | grep aws_ecr_repository.flask_repo || \
             terraform import aws_ecr_repository.flask_repo flask-hello-world
 
-          terraform state list | grep 'module.eks.module.kms.aws_kms_alias.this\["cluster"\]' || \
+          terraform state list | grep 'module.eks.module.kms.aws_kms_alias.this\\["cluster"\\]' || \
             terraform import 'module.eks.module.kms.aws_kms_alias.this["cluster"]' arn:aws:kms:us-east-1:${{ secrets.AWS_ACCOUNT_ID }}:alias/eks/flask-eks-cluster
 
-          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\[0\]' || \
+          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\\[0\\]' || \
             terraform import 'module.eks.aws_cloudwatch_log_group.this[0]' /aws/eks/flask-eks-cluster/cluster
 
       - name: Terraform Plan
