@@ -71,7 +71,6 @@ output "repository_url" {
   value = aws_ecr_repository.flask_repo.repository_url
 }
 
-
 module "eks" {
   source                         = "terraform-aws-modules/eks/aws"
   cluster_name                   = "flask-eks-cluster"
@@ -86,21 +85,16 @@ module "eks" {
   create_kms_key                 = false
   access_public_cidrs            = ["0.0.0.0/0"]
 
-  eks_managed_node_group_defaults = {
-    instance_types = ["t3.micro"]
-  }
-
-  
-}
-
-  eks_managed_node_groups = {
-    default_node_group = {
-      desired_size = 2
-      max_size     = 2
-      min_size     = 2
-      name         = "ng-flask"
+  managed_node_groups = {
+    default = {
+      name            = "ng-flask"
+      desired_size    = 2
+      min_size        = 2
+      max_size        = 2
+      instance_types  = ["t3.micro"]
     }
   }
+}
 
 
 
