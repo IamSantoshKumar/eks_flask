@@ -1,13 +1,19 @@
-# ------------------------------------------
 # 4. .github/workflows/terraform.yml - GitHub Actions CI/CD for Terraform
 # ------------------------------------------
 name: Terraform EKS Infrastructure
 
 on:
-  push:
-    paths:
-      - 'terraform/**'
-    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform Action"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+
 jobs:
   terraform:
     name: 'Terraform Apply'
@@ -32,31 +38,17 @@ jobs:
         with:
           terraform_version: 1.7.5
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
       - name: Auto-import existing resources
         run: |
           terraform state list | grep aws_ecr_repository.flask_repo || \
             terraform import aws_ecr_repository.flask_repo flask-hello-world
-            
-          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\\[0\\]' || \
 
-             terraform state list | grep aws_ecr_repository.flask_repo || \
-             terraform import aws_ecr_repository.flask_repo flask-hello-world
-
-             terraform state list | grep 'module.eks.aws_eks_cluster.this\\[0\\]' || \
-             terraform import 'module.eks.aws_eks_cluster.this[0]' flask-eks-cluster
-
-             terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\\[0\\]' || \
-             terraform import 'module.eks.aws_cloudwatch_log_group.this[0]' /aws/eks/flask-eks-cluster/cluster
-
+          
+          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\[0\]' || \
+            terraform import 'module.eks.aws_cloudwatch_log_group.this[0]' /aws/eks/flask-eks-cluster/cluster
 
       - name: Terraform Plan
         run: terraform plan
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform ${{ github.event.inputs.action }}
+        run: terraform ${{ github.event.inputs.action }} -auto-approve

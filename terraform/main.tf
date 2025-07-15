@@ -82,7 +82,6 @@ module "eks" {
   vpc_id = aws_vpc.main.id
   cluster_endpoint_public_access = true
   cluster_endpoint_private_access = true
-  create_kms_key                 = false
 
   eks_managed_node_group_defaults = {
     instance_types = ["t3.micro"]
@@ -105,5 +104,5 @@ resource "aws_security_group_rule" "eks_api_ingress" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = module.eks.cluster_security_group_id
-  description       = "Allow public access to EKS API from anywhere"
+  description       = "Allow public access to EKS API from anywher"
 }
