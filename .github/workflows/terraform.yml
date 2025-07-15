@@ -3,6 +3,12 @@
 name: Terraform EKS Infrastructure
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+
   workflow_dispatch:
     inputs:
       action:
