@@ -73,6 +73,7 @@ output "repository_url" {
 
 module "eks" {
   source                         = "terraform-aws-modules/eks/aws"
+  version                        = "20.8.4" # optional: lock module version
   cluster_name                   = "flask-eks-cluster"
   cluster_version                = "1.29"
   subnet_ids                     = [
@@ -83,18 +84,18 @@ module "eks" {
   cluster_endpoint_public_access = true
   cluster_endpoint_private_access = true
   create_kms_key                 = false
-  access_public_cidrs            = ["0.0.0.0/0"]
 
-  managed_node_groups = {
-    default = {
-      name            = "ng-flask"
-      desired_size    = 2
-      min_size        = 2
-      max_size        = 2
-      instance_types  = ["t3.micro"]
+  eks_managed_node_groups = {
+    ng-flask = {
+      name           = "ng-flask"
+      instance_types = ["t3.micro"]
+      desired_size   = 2
+      min_size       = 2
+      max_size       = 2
     }
   }
 }
+
 
 
 
