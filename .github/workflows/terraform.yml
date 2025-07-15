@@ -1,14 +1,9 @@
+# ------------------------------------------
 # 4. .github/workflows/terraform.yml - GitHub Actions CI/CD for Terraform
 # ------------------------------------------
 name: Terraform EKS Infrastructure
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'terraform/**'
-
   workflow_dispatch:
     inputs:
       action:
@@ -46,7 +41,13 @@ jobs:
 
       - name: Auto-import existing resources
         run: |
+          terraform init
+
           terraform state list | grep aws_ecr_repository.flask_repo || \
+            terraform import aws_ecr_repository.flask_repo flask-hello-world
+
+          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\[0\]' || \
+            terraform import 'module.eks.aws_cloudwatch_log_group.this[0]' /aws/eks/flask-eks-cluster/cluster
             terraform import aws_ecr_repository.flask_repo flask-hello-world
 
           
