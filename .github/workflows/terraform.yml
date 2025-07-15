@@ -1,3 +1,4 @@
+# ------------------------------------------
 # 4. .github/workflows/terraform.yml - GitHub Actions CI/CD for Terraform
 # ------------------------------------------
 name: Terraform EKS Infrastructure
@@ -32,8 +33,17 @@ jobs:
         with:
           terraform_version: 1.7.5
 
-      - name: Terraform Init
-        run: terraform init
+      
+      - name: Auto-import existing resources
+        run: |
+          terraform state list | grep aws_ecr_repository.flask_repo || \
+            terraform import aws_ecr_repository.flask_repo flask-hello-world
+
+          terraform state list | grep 'module.eks.module.kms.aws_kms_alias.this\["cluster"\]' || \
+            terraform import 'module.eks.module.kms.aws_kms_alias.this["cluster"]' arn:aws:kms:us-east-1:${{ secrets.AWS_ACCOUNT_ID }}:alias/eks/flask-eks-cluster
+
+          terraform state list | grep 'module.eks.aws_cloudwatch_log_group.this\[0\]' || \
+            terraform import 'module.eks.aws_cloudwatch_log_group.this[0]' /aws/eks/flask-eks-cluster/cluster
 
       - name: Terraform Plan
         run: terraform plan
